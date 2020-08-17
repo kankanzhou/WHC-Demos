@@ -4,10 +4,18 @@ from typing import List, Optional
 import datetime
 
 
-class Locations(str, Enum):
+class ServiceStations(str, Enum):
     REG = "registration"
     PAY = "payments"
     FC = "financial_counselling"
+    ALL = "all"
+
+
+class Clinics(str, Enum):
+    CLINIC_1B = "1b"
+    CLINIC_2B = "2b"
+    TCMSB = "tcmsb"
+    TCSOCK = "tcsock"
     ALL = "all"
 
 
