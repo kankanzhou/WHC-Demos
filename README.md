@@ -17,6 +17,12 @@ Source code for WHC Project Demos
 ```
 
 # Running in development mode
+
+- Install dependencies
+```
+pip install -r requirements.txt
+```
+
 - Start streamlit demos:
 ```
 streamlit run src/demos/SOCWorkloadValidationDemo.py
@@ -25,4 +31,6 @@ streamlit run src/demos/SOCWorkloadValidationDemo.py
 - Start FastAPI Server
 ```
 uvicorn src.api.main:app --reload
+OpenAPI specs can be found at `http://127.0.0.1:8000/docs`
 ```
+
