@@ -6,7 +6,7 @@ from bokeh.models import DatetimeTickFormatter, ColumnDataSource, HoverTool
 from Mock import get_workload_pred, get_workload_trend, get_appointments
 
 BOKEH_TOOLS = "pan,wheel_zoom,box_zoom,reset"
-SOC_LOCATIONS = ("Overall Aggregated", "Registration", "Pharmacy", "Payment")
+SOC_LOCATIONS = ("Overall Aggregated", "Registration", "FC", "Payment")
 DAYS_BEFORE_TO_SHOW = 30
 DAYS_TO_PREDICT = 7
 
@@ -23,7 +23,7 @@ x_appt, y_appt = get_appointments(DAYS_BEFORE_TO_SHOW + DAYS_TO_PREDICT)
 
 # Convert to dates
 today_date = datetime.combine(today_date, datetime.min.time())
-x_trend = [today_date - timedelta(days=DAYS_BEFORE_TO_SHOW - inc) for inc in x_trend]
+x_trend = [today_date - timedelta(days=DAYS_BEFORE_TO_SHOW - inc) for inc in x_trend[:-1]]
 x_pred = [today_date + timedelta(days=inc) for inc in x_pred]
 x_appt = [today_date + timedelta(days=inc - DAYS_BEFORE_TO_SHOW) for inc in x_appt]
 
@@ -36,7 +36,7 @@ y_pred = [y_trend[-1]] + y_pred
 datatable = pd.DataFrame({"Day": x_pred, "Overall": y_pred,})
 datatable["Registration"] = datatable["Overall"].apply(lambda x: round(x * 0.4))
 datatable["Payments"] = datatable["Overall"].apply(lambda x: round(x * 0.4))
-datatable["Financial Counselling"] = datatable["Overall"].apply(
+datatable["FC"] = datatable["Overall"].apply(
     lambda x: round(x * 0.2)
 )
 
@@ -53,12 +53,12 @@ p = figure(
     tools=BOKEH_TOOLS,
 )
 p.xaxis.formatter = DatetimeTickFormatter(
-    hours=["%d/%m"], days=["%d/%m %a"], months=["%d %b %Y"], years=["%Y"],
+    hours=["%I %p %d/%m"], days=["%d/%m %a"], months=["%d %b %Y"], years=["%Y"],
 )
 p.add_tools(
     HoverTool(
         tooltips=[
-            ("Date", "@x{%d/%m %a}"),
+            ("Date", "@x{%a %d/%m %p}"),
             ("#Patients", "@y",),  # use @{ } for field names with spaces
         ],
         formatters={"@x": "datetime",},  # use 'datetime' formatter for '@date' field
@@ -89,5 +89,5 @@ p.legend.location = "top_left"
 
 st.bokeh_chart(p, use_container_width=True)
 
-st.dataframe(datatable)
+st.write(datatable)
 
