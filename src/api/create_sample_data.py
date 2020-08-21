@@ -12,7 +12,6 @@ step = datetime.timedelta(hours=12)
 
 DateTime = []
 
-## create 
 while dt < end:
     DateTime.append(dt.strftime('%Y-%m-%d %H:%M:%S'))
     dt += step
@@ -20,7 +19,6 @@ while dt < end:
 
 clinic_list = ['clinic_1b','clinic_2b','TCMSB','TCSOCK']
 
-    
 def generate_appt_data(DateTime,clinic):
     appt_load =  np.random.randint(5,20,len(DateTime))
     df = pd.DataFrame(list(zip(DateTime, appt_load)),  columns =['DateTime', 'appt_load'])
