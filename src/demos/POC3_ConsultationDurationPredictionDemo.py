@@ -34,6 +34,8 @@ user_input = st.text_area("Appointment Notes")
 
 
 prediction = np.random.randint(2, 30)
+st.sidebar.title("WHC Consultation Duration Prediction")
+
 
 if st.sidebar.button('Predict'):
     st.sidebar.header(f'Expected appointment duration: {prediction} minutes')

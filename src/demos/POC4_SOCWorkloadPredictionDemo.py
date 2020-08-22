@@ -23,14 +23,14 @@ x_appt, y_appt = get_appointments(DAYS_BEFORE_TO_SHOW + DAYS_TO_PREDICT)
 
 # Convert to dates
 today_date = datetime.combine(today_date, datetime.min.time())
-x_trend = [today_date - timedelta(days=DAYS_BEFORE_TO_SHOW - inc) for inc in x_trend[:-1]]
+x_trend = [today_date - timedelta(days=DAYS_BEFORE_TO_SHOW - inc) for inc in x_trend]
 x_pred = [today_date + timedelta(days=inc) for inc in x_pred]
 x_appt = [today_date + timedelta(days=inc - DAYS_BEFORE_TO_SHOW) for inc in x_appt]
 
 # Ensure that trend and predicted lines "join" up, by making the first value in
 # pred line the last value in trend line
-x_pred = [x_trend[-1]] + x_pred
-y_pred = [y_trend[-1]] + y_pred
+# x_pred = [x_trend[-1]] + x_pred
+# y_pred = [y_trend[-1]] + y_pred
 
 # Mock Datatable
 datatable = pd.DataFrame({"Day": x_pred, "Overall": y_pred,})
@@ -89,5 +89,5 @@ p.legend.location = "top_left"
 
 st.bokeh_chart(p, use_container_width=True)
 
-st.write(datatable)
+st.dataframe(datatable.style.format({'Day': "{:%a %d-%m-%Y %p}"}))
 
