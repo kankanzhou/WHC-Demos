@@ -1,12 +1,15 @@
-import streamlit as st
-from bokeh.plotting import figure
-import pandas as pd
 from datetime import datetime, timedelta
-from bokeh.models import DatetimeTickFormatter, ColumnDataSource, HoverTool
-from Mock import get_workload_pred, get_workload_trend, get_appointments
+
+import pandas as pd
+import streamlit as st
+from bokeh.models import ColumnDataSource, DatetimeTickFormatter, HoverTool
+from bokeh.plotting import figure
+
+from data_fns import get_appointments, get_workload_pred, get_workload_trend
 
 BOKEH_TOOLS = "pan,wheel_zoom,box_zoom,reset"
-SOC_LOCATIONS = ("Overall Aggregated", "Registration", "FC", "Payment")
+SOC_LOCATIONS = ("Registration", "FC", "Payment")
+SOC_CLINICS = ("Overall Aggregated", "Clinic 1b", "Clinic 2b", "TCMSB", "TCSOCK")
 DAYS_BEFORE_TO_SHOW = 30
 DAYS_TO_PREDICT = 7
 
@@ -15,35 +18,45 @@ st.sidebar.title("WHC SOC Workload Prediction")
 st.sidebar.markdown("## Demo Settings")
 today_date = st.sidebar.date_input("Today's Date")
 
-# DATA PROCESSING =======================================
-
-x_trend, y_trend = get_workload_trend(DAYS_BEFORE_TO_SHOW)
-x_pred, y_pred = get_workload_pred(DAYS_TO_PREDICT)
-x_appt, y_appt = get_appointments(DAYS_BEFORE_TO_SHOW + DAYS_TO_PREDICT)
-
 # Convert to dates
 today_date = datetime.combine(today_date, datetime.min.time())
-x_trend = [today_date - timedelta(days=DAYS_BEFORE_TO_SHOW - inc) for inc in x_trend]
-x_pred = [today_date + timedelta(days=inc) for inc in x_pred]
-x_appt = [today_date + timedelta(days=inc - DAYS_BEFORE_TO_SHOW) for inc in x_appt]
-
-# Ensure that trend and predicted lines "join" up, by making the first value in
-# pred line the last value in trend line
-# x_pred = [x_trend[-1]] + x_pred
-# y_pred = [y_trend[-1]] + y_pred
-
-# Mock Datatable
-datatable = pd.DataFrame({"Day": x_pred, "Overall": y_pred,})
-datatable["Registration"] = datatable["Overall"].apply(lambda x: round(x * 0.4))
-datatable["Payments"] = datatable["Overall"].apply(lambda x: round(x * 0.4))
-datatable["FC"] = datatable["Overall"].apply(
-    lambda x: round(x * 0.2)
-)
 
 # UI STARTS ==========================================
 
 st.title("[WHC POC4] SOC Workload Prediction")
-location = st.selectbox("Select Location", SOC_LOCATIONS)
+location = st.selectbox("Select Station", SOC_LOCATIONS)
+clinic = st.selectbox("Select Clinic", SOC_CLINICS)
+
+x_appt, y_appt = get_appointments(
+    today_date - timedelta(days=DAYS_BEFORE_TO_SHOW),
+    today_date + timedelta(days=DAYS_TO_PREDICT),
+    clinic,
+)
+
+x_trend, y_trend = get_workload_trend(
+    today_date - timedelta(days=DAYS_BEFORE_TO_SHOW), today_date, location, clinic
+)
+x_pred, y_pred = get_workload_pred(
+    today_date, today_date + timedelta(days=DAYS_TO_PREDICT), location, clinic
+)
+
+# Mock Datatable
+datatable = pd.DataFrame(
+    get_workload_pred(
+        today_date, today_date + timedelta(days=DAYS_TO_PREDICT), "Registration", clinic
+    )
+)
+datatable = datatable.T
+datatable.columns = ["Session", "Registration"]
+datatable["Registration"] = get_workload_pred(today_date, today_date + timedelta(days=DAYS_TO_PREDICT), "Registration", clinic)[1]
+datatable["Payment"] = get_workload_pred(
+    today_date, today_date + timedelta(days=DAYS_TO_PREDICT), "Payment", clinic
+)[1]
+datatable["FC"] = get_workload_pred(
+    today_date, today_date + timedelta(days=DAYS_TO_PREDICT), "FC", clinic
+)[1]
+
+
 st.write(f"### SOC 30Day (+7Day Predicted) Workload for {location}")
 p = figure(
     x_axis_label="Day",
@@ -89,5 +102,5 @@ p.legend.location = "top_left"
 
 st.bokeh_chart(p, use_container_width=True)
 
-st.dataframe(datatable.style.format({'Day': "{:%a %d-%m-%Y %p}"}))
-
+st.header('Forecast')
+st.table(datatable.style.hide_index().format({"Session": "{:%a %d-%m-%Y %p}"}))

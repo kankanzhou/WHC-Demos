@@ -9,7 +9,11 @@ patient_key = st.text_input("Patient Key")
 case_number = st.text_input("Case Number")
 appt_date = st.date_input("Appointment Date")
 appt_time = st.slider(
-    "Appointment Time", min_value=time(8, 0), max_value=time(18, 0), value=time(11, 30), format="hh:mm a",
+    "Appointment Time",
+    min_value=time(8, 0),
+    max_value=time(18, 0),
+    value=time(11, 30),
+    format="hh:mm a",
 )
 st.selectbox(
     "Appointment Type",
@@ -32,10 +36,9 @@ doctor = st.selectbox("Doctor", ("M01", "M02", "M03"))
 user_input = st.text_area("Appointment Notes")
 
 
-
 prediction = np.random.randint(2, 30)
 st.sidebar.title("WHC Consultation Duration Prediction")
 
 
-if st.sidebar.button('Predict'):
-    st.sidebar.header(f'Expected appointment duration: {prediction} minutes')
+if st.sidebar.button("Predict"):
+    st.sidebar.header(f"Expected appointment duration: {prediction} minutes")

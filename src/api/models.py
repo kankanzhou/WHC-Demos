@@ -8,7 +8,7 @@ class ServiceStations(str, Enum):
     REG = "registration"
     PAY = "payments"
     FC = "financial_counselling"
-    ALL = "all"
+    # ALL = "all"
 
 
 class Clinics(str, Enum):
@@ -19,18 +19,18 @@ class Clinics(str, Enum):
     ALL = "all"
 
 
-class Session(str, Enum):
-    AM = "AM"
-    PM = "PM"
+# class Session(str, Enum):
+#     AM = "AM"
+#     PM = "PM"
 
 
 class Appointments(BaseModel):
-    date: datetime.date
-    session: Session
+    date: datetime.datetime
+    # session: Session
     num_appointments: int
 
 
 class Workload(BaseModel):
-    date: datetime.date
-    session: Session
+    date: datetime.datetime
+    # session: Session
     num_patients: int
