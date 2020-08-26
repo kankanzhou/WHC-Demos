@@ -1,7 +1,10 @@
-from fastapi import FastAPI
 import datetime
-from .models import Appointments, Workload, ServiceStations, Clinics
 from typing import List, Optional
+
+from fastapi import FastAPI
+from ETL_for_view import get_appt_load, get_queue_load
+
+from models import Appointments, Clinics, ServiceStations, Workload
 
 app = FastAPI()
 
@@ -17,7 +20,9 @@ async def read_item(
     end_date: datetime.date,
     clinic: Optional[Clinics] = Clinics.ALL,
 ):
-    res: List[Appointments] = []
+    res: List[Appointments] = get_appt_load(
+        start_date, end_date, clinic,
+    )
     return res
 
 
@@ -26,9 +31,9 @@ async def read_item(
     start_date: datetime.date,
     end_date: datetime.date,
     clinic: Optional[Clinics] = Clinics.ALL,
-    serviceStation: Optional[ServiceStations] = ServiceStations.ALL,
+    serviceStation: Optional[ServiceStations] = ServiceStations.REG,
 ):
-    res: List[Workload] = []
+    res: List[Workload] = get_queue_load(start_date, end_date, clinic, serviceStation)
     return res
 
 
@@ -36,7 +41,7 @@ async def read_item(
 async def read_item(
     start_date: datetime.date,
     clinic: Optional[Clinics] = Clinics.ALL,
-    serviceStation: Optional[ServiceStations] = ServiceStations.ALL,
+    serviceStation: Optional[ServiceStations] = ServiceStations.REG,
 ):
     res: List[Workload] = []
     return res
